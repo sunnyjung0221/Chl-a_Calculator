@@ -5,14 +5,39 @@
   <title>Chl-a Calculator</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    body { font-family: sans-serif; padding: 20px; }
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-image: url('image.png');
+      background-size: 80%;            /* ✅ 이미지 크기 축소 */
+      background-repeat: no-repeat;
+      background-position: center;
+      opacity: 0.15;
+      z-index: -1;
+    }
+
     h1 { text-align: left; margin-bottom: 20px; }
     .row { display: flex; margin-bottom: 10px; align-items: center; flex-wrap: wrap; }
-    input, select {
-      width: 70px;
+    input, select, button {
+      height: 30px;
       margin-right: 10px;
       text-align: center;
-      height: 30px;
+    }
+    input, select {
+      width: 70px;
+    }
+    button {
+      padding: 0 10px;
+      font-size: 18px;
+      cursor: pointer;
     }
     label {
       margin-right: 10px;
@@ -39,13 +64,14 @@
 <body>
   <h1>Chl-a Calculator</h1>
 
-  <!-- Ver 선택 -->
+  <!-- Ver 선택 + 새로고침 버튼 -->
   <div class="row">
     <label for="verSelect">Ver.</label>
     <select id="verSelect" onchange="recalculateAll()">
       <option value="0.968">10-AU</option>
       <option value="0.1691">Trilogy</option>
     </select>
+    <button onclick="resetAll()">🔄</button>
   </div>
 
   <!-- Total -->
@@ -119,17 +145,25 @@
         }
       }
 
-      // Size 합계
       const sum = sizeValues.reduce((acc, val) => acc + val, 0);
       sizeSumBox.value = sum.toFixed(4);
 
-      // 오차 계산
       if (totalResult !== null) {
         const error = totalResult - sum;
         errorBox.value = error.toFixed(4);
       } else {
         errorBox.value = "";
       }
+    }
+
+    function resetAll() {
+      document.querySelectorAll("input.inputVal").forEach(input => input.value = "");
+      document.querySelectorAll("input.denomVal").forEach((input, idx) => {
+        input.value = idx === 0 ? "300" : "500";
+      });
+      document.querySelectorAll("input.resultVal").forEach(output => output.value = "");
+      document.getElementById("sizeSum").value = "";
+      document.getElementById("errorVal").value = "";
     }
   </script>
 </body>
