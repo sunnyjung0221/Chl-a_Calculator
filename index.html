@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     body { font-family: sans-serif; padding: 20px; }
-    h1 { text-align: right; margin-bottom: 20px; }
+    h1 { text-align: left; margin-bottom: 20px; }
     .row { display: flex; margin-bottom: 10px; align-items: center; flex-wrap: wrap; }
     input, select {
       width: 70px;
@@ -45,26 +45,26 @@
   <!-- Total -->
   <div class="section-title">Total</div>
   <div class="row">
-    <input type="number" class="inputVal" placeholder="Total" oninput="recalculateAll()">
-    <input type="number" class="denomVal" value="300" oninput="recalculateAll()">
+    <input type="number" inputmode="decimal" class="inputVal" placeholder="Total" oninput="recalculateAll()">
+    <input type="number" inputmode="decimal" class="denomVal" value="300" oninput="recalculateAll()">
     <input type="text" class="resultVal" id="totalResult" readonly>
   </div>
 
   <!-- Size -->
   <div class="section-title">Size</div>
   <div class="row">
-    <input type="number" class="inputVal" placeholder="Size1" oninput="recalculateAll()">
-    <input type="number" class="denomVal" value="500" oninput="recalculateAll()">
+    <input type="number" inputmode="decimal" class="inputVal" placeholder="Size a" oninput="recalculateAll()">
+    <input type="number" inputmode="decimal" class="denomVal" value="500" oninput="recalculateAll()">
     <input type="text" class="resultVal sizeResult" readonly>
   </div>
   <div class="row">
-    <input type="number" class="inputVal" placeholder="Size2" oninput="recalculateAll()">
-    <input type="number" class="denomVal" value="500" oninput="recalculateAll()">
+    <input type="number" inputmode="decimal" class="inputVal" placeholder="Size b" oninput="recalculateAll()">
+    <input type="number" inputmode="decimal" class="denomVal" value="500" oninput="recalculateAll()">
     <input type="text" class="resultVal sizeResult" readonly>
   </div>
   <div class="row">
-    <input type="number" class="inputVal" placeholder="Size3" oninput="recalculateAll()">
-    <input type="number" class="denomVal" value="500" oninput="recalculateAll()">
+    <input type="number" inputmode="decimal" class="inputVal" placeholder="Size c" oninput="recalculateAll()">
+    <input type="number" inputmode="decimal" class="denomVal" value="500" oninput="recalculateAll()">
     <input type="text" class="resultVal sizeResult" readonly>
   </div>
 
@@ -82,7 +82,6 @@
       const inputBoxes = document.querySelectorAll(".inputVal");
       const denomBoxes = document.querySelectorAll(".denomVal");
       const resultBoxes = document.querySelectorAll(".resultVal");
-      const sizeResultBoxes = document.querySelectorAll(".sizeResult");
       const sizeSumBox = document.getElementById("sizeSum");
       const errorBox = document.getElementById("errorVal");
       const totalResultBox = document.getElementById("totalResult");
