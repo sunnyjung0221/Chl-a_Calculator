@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Chl-a Calculator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    h1 { text-align: right; margin-bottom: 20px; }
+    .row { display: flex; margin-bottom: 10px; align-items: center; flex-wrap: wrap; }
+    input, select {
+      width: 70px;
+      margin-right: 10px;
+      text-align: center;
+      height: 30px;
+    }
+    label {
+      margin-right: 10px;
+      font-weight: bold;
+    }
+    .section-title {
+      font-weight: bold;
+      margin-top: 15px;
+      margin-bottom: 5px;
+      font-size: 16px;
+    }
+    .sum-row {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Chl-a Calculator</h1>
+
+  <!-- Ver 선택 -->
+  <div class="row">
+    <label for="verSelect">Ver.</label>
+    <select id="verSelect" onchange="recalculateAll()">
+      <option value="0.968">10-AU</option>
+      <option value="0.1691">Trilogy</option>
+    </select>
+  </div>
+
+  <!-- Total -->
+  <div class="section-title">Total</div>
+  <div class="row">
+    <input type="number" class="inputVal" placeholder="Total" oninput="recalculateAll()">
+    <input type="number" class="denomVal" value="300" oninput="recalculateAll()">
+    <input type="text" class="resultVal" id="totalResult" readonly>
+  </div>
+
+  <!-- Size -->
+  <div class="section-title">Size</div>
+  <div class="row">
+    <input type="number" class="inputVal" placeholder="Size1" oninput="recalculateAll()">
+    <input type="number" class="denomVal" value="500" oninput="recalculateAll()">
+    <input type="text" class="resultVal sizeResult" readonly>
+  </div>
+  <div class="row">
+    <input type="number" class="inputVal" placeholder="Size2" oninput="recalculateAll()">
+    <input type="number" class="denomVal" value="500" oninput="recalculateAll()">
+    <input type="text" class="resultVal sizeResult" readonly>
+  </div>
+  <div class="row">
+    <input type="number" class="inputVal" placeholder="Size3" oninput="recalculateAll()">
+    <input type="number" class="denomVal" value="500" oninput="recalculateAll()">
+    <input type="text" class="resultVal sizeResult" readonly>
+  </div>
+
+  <!-- Size 합계 + 오차 -->
+  <div class="row sum-row">
+    <label>Size 합계</label>
+    <input type="text" id="sizeSum" readonly>
+    <label>오차</label>
+    <input type="text" id="errorVal" readonly>
+  </div>
+
+  <script>
+    function recalculateAll() {
+      const coeff = parseFloat(document.getElementById("verSelect").value);
+      const inputBoxes = document.querySelectorAll(".inputVal");
+      const denomBoxes = document.querySelectorAll(".denomVal");
+      const resultBoxes = document.querySelectorAll(".resultVal");
+      const sizeResultBoxes = document.querySelectorAll(".sizeResult");
+      const sizeSumBox = document.getElementById("sizeSum");
+      const errorBox = document.getElementById("errorVal");
+      const totalResultBox = document.getElementById("totalResult");
+
+      let sizeValues = [];
+      let totalResult = null;
+
+      for (let i = 0; i < inputBoxes.length; i++) {
+        const input = parseFloat(inputBoxes[i].value);
+        const denom = parseFloat(denomBoxes[i].value);
+
+        if (!isNaN(input) && !isNaN(denom) && denom !== 0) {
+          const result = input * coeff * (10 / denom);
+          resultBoxes[i].value = result.toFixed(4);
+
+          if (i === 0) {
+            totalResult = result;
+          } else {
+            sizeValues.push(result);
+          }
+        } else {
+          resultBoxes[i].value = "";
+          if (i === 0) totalResult = null;
+        }
+      }
+
+      // Size 합계
+      const sum = sizeValues.reduce((acc, val) => acc + val, 0);
+      sizeSumBox.value = sum.toFixed(4);
+
+      // 오차 계산
+      if (totalResult !== null) {
+        const error = totalResult - sum;
+        errorBox.value = error.toFixed(4);
+      } else {
+        errorBox.value = "";
+      }
+    }
+  </script>
+</body>
+</html>
