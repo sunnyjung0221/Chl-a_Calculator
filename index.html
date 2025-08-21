@@ -11,62 +11,93 @@
       position: relative;
       z-index: 1;
     }
-
     body::before {
       content: "";
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
       background-image: url('image.png');
-      background-size: 70%;            /* ✅ 이미지 크기 축소 */
+      background-size: 70%;
       background-repeat: no-repeat;
       background-position: center;
       opacity: 0.15;
       z-index: -1;
     }
 
-    h1 { text-align: left; margin-bottom: 20px; }
-    .row { display: flex; margin-bottom: 10px; align-items: center; flex-wrap: wrap; }
-    input, select, button {
-      height: 30px;
-      margin-right: 10px;
-      text-align: center;
+    h1 { text-align: left; margin-bottom: 35px; }
+
+    .row { 
+      display: flex; 
+      gap: 10px; 
+      align-items: center; 
+      margin-bottom: 8px; 
+      flex-wrap: wrap; 
     }
-    input, select {
-      width: 70px;
-    }
+    label { font-weight: bold; min-width: 70px; }
+
+    input, select { height: 30px; text-align: center; width: 80px; }
+
+    /* 🔄 버튼 정사각형 */
     button {
-      padding: 0 10px;
+      width: 32px;
+      height: 32px;
       font-size: 18px;
       cursor: pointer;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-    label {
-      margin-right: 10px;
-      font-weight: bold;
-    }
-    .section-title {
-      font-weight: bold;
-      margin-top: 15px;
-      margin-bottom: 5px;
-      font-size: 16px;
-    }
+
+    .section-title { font-weight: bold; margin-top: 16px; margin-bottom: 6px; font-size: 16px; }
+    .footer { text-align: left; margin-top: 30px; font-size: 12px; color: #888; }
+
+    /* 위 비교 블록 */
+    .compare { margin-bottom: 35px; }
+    .compare .label-narrow { min-width: 60px; }
+
+    /* Size 합계 줄만 간격 줄이기 */
     .sum-row {
       margin-top: 10px;
       font-weight: bold;
+      gap: 4px;
     }
-    .footer {
-      text-align: left;
-      margin-top: 30px;
-      font-size: 12px;
-      color: #888;
+    .sum-row label { 
+      margin-right: 2px;
+      min-width: auto;
+    }
+
+    /* ver. 줄만 간격 좁히기 */
+    .row.ver-row {
+      gap: 4px;   /* 기본 10px → 4px */
     }
   </style>
 </head>
 <body>
   <h1>Chl-a Calculator</h1>
 
-  <!-- Ver 선택 + 새로고침 버튼 -->
-  <div class="row">
-    <label for="verSelect">Ver.</label>
+  <!-- ===== 위 비교 블록 ===== -->
+  <div class="compare">
+    <div class="row">
+      <label class="label-narrow">10-AU</label>
+      <input type="number" inputmode="decimal" id="auInput" oninput="recalcCompare()">
+      <input type="number" inputmode="decimal" id="auDenom" value="300" oninput="recalcCompare()">
+      <input type="text" id="auResult" readonly>
+    </div>
+    <div class="row">
+      <label class="label-narrow">Trilogy</label>
+      <input type="number" inputmode="decimal" id="triInput" oninput="recalcCompare()">
+      <input type="number" inputmode="decimal" id="triDenom" value="300" oninput="recalcCompare()">
+      <input type="text" id="triResult" readonly>
+    </div>
+    <div class="row">
+      <label class="label-narrow">오차</label>
+      <input type="text" id="cmpError" readonly>
+    </div>
+  </div>
+
+  <!-- Ver 선택 + 새로고침 -->
+  <div class="row ver-row">
+    <label for="verSelect">ver.</label>
     <select id="verSelect" onchange="recalculateAll()">
       <option value="0.968">10-AU</option>
       <option value="0.1691">Trilogy</option>
@@ -74,15 +105,14 @@
     <button onclick="resetAll()">🔄</button>
   </div>
 
-  <!-- Total -->
+  <!-- ===== 아래 계산기 ===== -->
   <div class="section-title">Total</div>
   <div class="row">
-    <input type="number" inputmode="decimal" class="inputVal" placeholder="Total" oninput="recalculateAll()">
+    <input type="number" inputmode="decimal" class="inputVal" oninput="recalculateAll()">
     <input type="number" inputmode="decimal" class="denomVal" value="300" oninput="recalculateAll()">
     <input type="text" class="resultVal" id="totalResult" readonly>
   </div>
 
-  <!-- Size -->
   <div class="section-title">Size</div>
   <div class="row">
     <input type="number" inputmode="decimal" class="inputVal" placeholder="Size a" oninput="recalculateAll()">
@@ -100,7 +130,6 @@
     <input type="text" class="resultVal sizeResult" readonly>
   </div>
 
-  <!-- Size 합계 + 오차 -->
   <div class="row sum-row">
     <label>Size 합계</label>
     <input type="text" id="sizeSum" readonly>
@@ -108,12 +137,38 @@
     <input type="text" id="errorVal" readonly>
   </div>
 
-  <!-- 업데이트 날짜 -->
-  <div class="footer">
-    2025-06-16 last updated JHM
-  </div>
+  <div class="footer">2025-08-21 last updated JHM</div>
 
   <script>
+    const COEFF_AU = 0.968;
+    const COEFF_TRI = 0.1691;
+
+    function recalcCompare() {
+      const auIn  = parseFloat(document.getElementById('auInput').value);
+      const auDen = parseFloat(document.getElementById('auDenom').value);
+      const triIn  = parseFloat(document.getElementById('triInput').value);
+      const triDen = parseFloat(document.getElementById('triDenom').value);
+
+      let auRes = null, triRes = null;
+
+      if (!isNaN(auIn) && !isNaN(auDen) && auDen !== 0) {
+        auRes = auIn * COEFF_AU * (10 / auDen);
+        document.getElementById('auResult').value = auRes.toFixed(4);
+      } else {
+        document.getElementById('auResult').value = '';
+      }
+
+      if (!isNaN(triIn) && !isNaN(triDen) && triDen !== 0) {
+        triRes = triIn * COEFF_TRI * (10 / triDen);
+        document.getElementById('triResult').value = triRes.toFixed(4);
+      } else {
+        document.getElementById('triResult').value = '';
+      }
+
+      document.getElementById('cmpError').value =
+        (auRes !== null && triRes !== null) ? (auRes - triRes).toFixed(4) : '';
+    }
+
     function recalculateAll() {
       const coeff = parseFloat(document.getElementById("verSelect").value);
       const inputBoxes = document.querySelectorAll(".inputVal");
@@ -121,7 +176,6 @@
       const resultBoxes = document.querySelectorAll(".resultVal");
       const sizeSumBox = document.getElementById("sizeSum");
       const errorBox = document.getElementById("errorVal");
-      const totalResultBox = document.getElementById("totalResult");
 
       let sizeValues = [];
       let totalResult = null;
@@ -133,35 +187,31 @@
         if (!isNaN(input) && !isNaN(denom) && denom !== 0) {
           const result = input * coeff * (10 / denom);
           resultBoxes[i].value = result.toFixed(4);
-
-          if (i === 0) {
-            totalResult = result;
-          } else {
-            sizeValues.push(result);
-          }
+          if (i === 0) totalResult = result;
+          else sizeValues.push(result);
         } else {
           resultBoxes[i].value = "";
           if (i === 0) totalResult = null;
         }
       }
 
-      const sum = sizeValues.reduce((acc, val) => acc + val, 0);
-      sizeSumBox.value = sum.toFixed(4);
-
-      if (totalResult !== null) {
-        const error = totalResult - sum;
-        errorBox.value = error.toFixed(4);
-      } else {
-        errorBox.value = "";
-      }
+      const sum = sizeValues.reduce((acc, v) => acc + v, 0);
+      sizeSumBox.value = sizeValues.length ? sum.toFixed(4) : "";
+      errorBox.value = (totalResult !== null && sizeValues.length) ? (totalResult - sum).toFixed(4) : "";
     }
 
     function resetAll() {
-      document.querySelectorAll("input.inputVal").forEach(input => input.value = "");
-      document.querySelectorAll("input.denomVal").forEach((input, idx) => {
-        input.value = idx === 0 ? "300" : "500";
-      });
-      document.querySelectorAll("input.resultVal").forEach(output => output.value = "");
+      document.getElementById('auInput').value = '';
+      document.getElementById('triInput').value = '';
+      document.getElementById('auDenom').value = '300';
+      document.getElementById('triDenom').value = '300';
+      document.getElementById('auResult').value = '';
+      document.getElementById('triResult').value = '';
+      document.getElementById('cmpError').value = '';
+
+      document.querySelectorAll(".inputVal").forEach(el => el.value = "");
+      document.querySelectorAll(".denomVal").forEach((el, i) => el.value = (i === 0 ? "300" : "500"));
+      document.querySelectorAll(".resultVal").forEach(el => el.value = "");
       document.getElementById("sizeSum").value = "";
       document.getElementById("errorVal").value = "";
     }
